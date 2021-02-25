@@ -6,15 +6,26 @@ import random
 from replit import db
 from keep_alive import keep_alive
 
-client = discord.Client()
+client = discord.Client() #connect to discord client
 
-sad_words = ["sad", "depressed", "unhappy", "angry", "sian", "fk"]
+sad_words = ["sad", "depressed", "unhappy", "angry", "sian"]
+
+vul = ["fk", "cb","bastard"]
 
 starter_encouragements = [
   "Cheer up!",
   "Hang in there.",
   "You are a great person / bot!"
 ]
+starter_encouragements2 = [
+  "WASSUP!",
+  "What do you want from me :) ",
+  "Not alive ... Zzz"
+]
+starter_encouragements3 = [
+  "blahs will kill u "
+]
+me = ["Jack" , "jack" , "jack tan ", "@blahs", "blahs"]
 
 if "responding" not in db.keys():
   db["responding"] = True
@@ -26,41 +37,57 @@ def get_quote():
   return(quote)
 
 def update_encouragements(encouraging_message):
+  
   if "encouragements" in db.keys():
     encouragements = db["encouragements"]
     encouragements.append(encouraging_message)
     db["encouragements"] = encouragements
   else:
     db["encouragements"] = [encouraging_message]
-
+  
+  
 def delete_encouragment(index):
   encouragements = db["encouragements"]
   if len(encouragements) > index:
     del encouragements[index]
     db["encouragements"] = encouragements
-
+#Creating the events. When ready then the  console a the side. The format helps to highlight the name of the bot.
 @client.event
 async def on_ready():
   print('We have logged in as {0.user}'.format(client))
 
+
+#Trigger when message is recieved. 
+#Check if the message is from ourself you dont want
 @client.event
 async def on_message(message):
   if message.author == client.user:
     return
 
-  msg = message.content
-
+  msg = message.content  #input from user.
+#If start with inspire message, get code
   if msg.startswith('$inspire'):
     quote = get_quote()
+# to send the message to discorc.
     await message.channel.send(quote)
 
   if db["responding"]:
     options = starter_encouragements
+    options2= starter_encouragements2
+    options3= starter_encouragements3
+
+
     if "encouragements" in db.keys():
       options = options + db["encouragements"]
 
     if any(word in msg for word in sad_words):
       await message.channel.send(random.choice(options))
+
+    if any(word in msg for word in me): #call me
+      await message.channel.send(random.choice(options2))
+
+    if any(word in msg for word in vul): #call vul
+      await message.channel.send(random.choice(options3))
 
   if msg.startswith("$new"):
     encouraging_message = msg.split("$new ",1)[1]
